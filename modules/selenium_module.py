@@ -1,6 +1,7 @@
 import httplib
 import os
 import socket
+import socks
 import sys
 import urllib2
 import ssl
@@ -192,6 +193,13 @@ def capture_host(cli_parsed, http_object, driver, ua=None):
     except:
         tempua = ''
     try:
+        if cli_parsed.proxy_type.contains('5'):
+            socks.set_default_proxy(socks.SOCKS5, cli_parsed.proxy_ip, cli_parsed.proxy_port)
+        elif cli_parsed.proxy_type.lower().contains('http'):
+            socks.set_default_proxy(socks.HTTP, cli_parsed.proxy_ip, cli_parsed.proxy_port)
+        else:
+            socks.set_default_proxy(socks.SOCKS4, cli_parsed.proxy_ip, cli_parsed.proxy_port)
+        socket.socket = socks.socksocket
         req = urllib2.Request(http_object.remote_system, headers={'User-Agent': tempua})
         if context is None:
             opened = urllib2.urlopen(req)
